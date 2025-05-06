@@ -16,6 +16,7 @@
 from enum import Enum
 from typing import Optional
 
+import nvtx
 from torch import nn
 
 from sglang.srt.layers.linear import UnquantizedLinearMethod
@@ -39,7 +40,7 @@ class RadixAttention(nn.Module):
     """
     The attention layer implementation.
     """
-
+    @nvtx.annotate(color="darkred", category="radix_attention")
     def __init__(
         self,
         num_heads: int,
@@ -89,18 +90,19 @@ class RadixAttention(nn.Module):
         save_kv_cache: bool = True,
         **kwargs,
     ):
-        if k is not None:
-            # For cross-layer sharing, kv can be None
-            assert v is not None
-            k = k.view(-1, self.tp_k_head_num, self.qk_head_dim)
-            v = v.view(-1, self.tp_v_head_num, self.v_head_dim)
+        with nvtx.annotate(message="forward", color="darkred", category="radix_attention"):
+            if k is not None:
+                # For cross-layer sharing, kv can be None
+                assert v is not None
+                k = k.view(-1, self.tp_k_head_num, self.qk_head_dim)
+                v = v.view(-1, self.tp_v_head_num, self.v_head_dim)
 
-        return forward_batch.attn_backend.forward(
-            q,
-            k,
-            v,
-            self,
-            forward_batch,
-            save_kv_cache,
-            **kwargs,
-        )
+            return forward_batch.attn_backend.forward(
+                q,
+                k,
+                v,
+                self,
+                forward_batch,
+                save_kv_cache,
+                **kwargs,
+            )
