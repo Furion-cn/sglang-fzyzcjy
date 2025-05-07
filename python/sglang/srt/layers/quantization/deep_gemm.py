@@ -40,8 +40,8 @@ _COMPILE_WORKERS = get_int_env_var("SGL_JIT_DEEPGEMM_COMPILE_WORKERS", 4)
 _IN_PRECOMPILE_STAGE = get_bool_env_var("SGL_IN_DEEPGEMM_PRECOMPILE_STAGE", "false")
 
 # Force redirect deep_gemm cache_dir
-os.environ["DG_JIT_CACHE_DIR"] = os.getenv(
-    "SGL_DG_JIT_CACHE_DIR", os.path.expanduser("~") + "/.cache/deep_gemm"
+os.environ["DG_CACHE_DIR"] = os.getenv(
+    "SGL_DG_CACHE_DIR", os.path.expanduser("~") + "/.cache/deep_gemm"
 )
 
 
